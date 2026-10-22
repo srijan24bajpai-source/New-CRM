@@ -1,0 +1,17 @@
+{
+  "name": "propcall-crm",
+  "version": "2.0.0",
+  "description": "Real-estate calling CRM: round-robin lead distribution, protected numbers, call tracking",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "migrate": "node scripts/migrate.js",
+    "test": "node scripts/test.js",
+    "vercel-build": "node scripts/migrate.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "^8.13.0" },
+  "devDependencies": { "@electric-sql/pglite": "^0.3.0" }
+}

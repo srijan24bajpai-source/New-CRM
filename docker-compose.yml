@@ -1,0 +1,43 @@
+# HTTPS deployment on any VPS: PostgreSQL + the app + Caddy (automatic Let's Encrypt certificates).
+# Only Caddy is exposed to the internet.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: propcall
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: propcall
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      DATABASE_URL: postgres://propcall:${DB_PASSWORD}@db:5432/propcall
+      TRUST_PROXY: "1"            # real client IPs come from Caddy; never set this if the app is exposed directly
+      PUBLIC_URL: https://${DOMAIN}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}  # first admin, created on first start only
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    expose:
+      - "3000"
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - app
+volumes:
+  pg-data:
+  caddy-data:

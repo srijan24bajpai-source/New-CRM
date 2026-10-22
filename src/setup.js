@@ -3,7 +3,8 @@ const { one, exec, migrate } = require('./db');
 const S = require('./security');
 const L = require('./leads');
 
-const IS_PROD = process.env.NODE_ENV === 'production';
+// Vercel does not always set NODE_ENV during builds, so treat any Vercel environment as production: demo accounts must never exist online.
+const IS_PROD = process.env.NODE_ENV === 'production' || !!process.env.VERCEL || !!process.env.VERCEL_ENV;
 
 // Production never ships demo accounts or sample leads: the first admin comes from ADMIN_EMAIL / ADMIN_PASSWORD.
 async function bootstrapAdmin() {
